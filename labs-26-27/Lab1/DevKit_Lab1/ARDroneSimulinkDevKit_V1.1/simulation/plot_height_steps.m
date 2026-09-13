@@ -23,7 +23,7 @@ legendSize  = 10;
 lineWidth   = 1.5;
 figSize_in  = [6 4];   % width x height, inches - fits a single-column report
 
-fig = figure('Units', 'inches', 'Position', [1 1 figSize_in]);
+fig = figure('Units', 'inches', 'Position', [1 1 figSize_in], 'Renderer', 'painters');
 ax = axes(fig);
 hold(ax, 'on');
 grid(ax, 'on');
@@ -52,6 +52,6 @@ set(ax, 'FontName', fontName, 'FontSize', tickSize, 'LineWidth', 1);
 
 % --- Save ---
 exportgraphics(fig, [outName '.pdf'], 'ContentType', 'vector');
-exportgraphics(fig, [outName '.png'], 'Resolution', 300);
+exportgraphics(fig, [outName '.png'], 'Resolution', 600);
 
 fprintf('Gráfico gravado em %s.pdf e %s.png\n', outName, outName);
