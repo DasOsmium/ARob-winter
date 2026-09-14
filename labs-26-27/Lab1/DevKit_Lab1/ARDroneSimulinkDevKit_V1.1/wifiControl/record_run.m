@@ -4,9 +4,14 @@ function record_run(kp, cumStep)
 %   height_data (output h) and href_data (input href), both created by
 %   "To Workspace" blocks in Structure With Time format with matching
 %   sample time/decimation, and saves them - together with a ready-to-use
-%   iddata object id - into a file named scope_kpXX_stepYY.mat in
-%   ../experiments_Pedro/real, so it is not mixed up with the simulation
-%   runs saved by simulation/record_run.m.
+%   iddata object id built from the full run - into a file named
+%   scope_kpXX_stepYY.mat in ../experiments_Pedro/real, so it is not
+%   mixed up with the simulation runs saved by simulation/record_run.m.
+%
+%   The full run (take-off, hold, step, landing) is saved as-is. Cropping
+%   to the window around the 0.75 m equilibrium (dropping take-off and
+%   landing transients) should be done later, e.g. before calling
+%   tfest/procest, so nothing gets discarded by mistake at capture time.
 %
 %   Call this right after each real-drone run finishes (after landing
 %   and stopping the model), before starting the next run.
@@ -17,10 +22,6 @@ function record_run(kp, cumStep)
 varNameY = 'height_data';
 varNameU = 'href_data';
 outDir   = fullfile(fileparts(mfilename('fullpath')), '..', 'experiments_Pedro', 'real');
-
-if ~isfolder(outDir)
-    mkdir(outDir);
-end
 
 for varName = {varNameY, varNameU}
     if ~evalin('base', sprintf('exist(''%s'',''var'')', varName{1}))
@@ -45,6 +46,10 @@ Ts = median(diff(Sy.time));
 id = iddata(y(:), u(:), Ts, 'Name', sprintf('kp=%g_step=%g', kp, cumStep), ...
     'InputName', 'href', 'OutputName', 'h', ...
     'InputUnit', 'm', 'OutputUnit', 'm', 'TimeUnit', 'seconds');
+
+if ~isfolder(outDir)
+    mkdir(outDir);
+end
 
 kpStr   = strrep(sprintf('%g', kp), '.', 'p');
 stepStr = strrep(sprintf('%g', cumStep), '.', 'p');
