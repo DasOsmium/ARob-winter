@@ -1,7 +1,7 @@
-%PLOT_HEIGHT_STEPS Load the 4 saved runs from record_run.m, overlay them,
-%   and save the figure as both PDF (vector, for the LaTeX report) and
-%   PNG (quick preview). Edit the "files" list below to match the files
-%   record_run produced.
+%PLOT_HEIGHT_STEPS Load the 4 saved runs from record_run.m and overlay them.
+%   Edit the "files" list below to match the files record_run produced.
+%   This script only displays the figure - it does not save anything to
+%   disk. Use export_height_steps.m when you want to save the PDF/PNG.
 
 dataDir = fullfile(fileparts(mfilename('fullpath')), '..', 'experiments_Pedro');
 
@@ -11,8 +11,6 @@ files = { ...
     fullfile(dataDir, 'scope_kp2_step0p3.mat'), ...
     fullfile(dataDir, 'scope_kp3_step0p2.mat'), ...
     };
-
-outName = fullfile(dataDir, 'height_step_responses');   % base name for the saved figure files
 
 % --- Formatting conventions ---
 fontName    = 'Helvetica';
@@ -49,9 +47,3 @@ lgd = legend(ax, legends, 'Location', 'best');
 set(lgd, 'FontName', fontName, 'FontSize', legendSize);
 
 set(ax, 'FontName', fontName, 'FontSize', tickSize, 'LineWidth', 1);
-
-% --- Save ---
-exportgraphics(fig, [outName '.pdf'], 'ContentType', 'vector');
-exportgraphics(fig, [outName '.png'], 'Resolution', 600);
-
-fprintf('Gráfico gravado em %s.pdf e %s.png\n', outName, outName);

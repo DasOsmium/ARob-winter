@@ -18,7 +18,7 @@
 
 \begin{center}
 {\Large Solutions --- Lab 1: Modeling and Identification of the Parrot AR.Drone}\\[6pt]
-{\large Questions 2.1 -- 2.6}
+{\large Questions 2.1 -- 2.9}
 \end{center}
 
 \vspace{18pt}
@@ -197,4 +197,65 @@ b_T & 0_{3\times3}\\
 0_{3\times1} & J^{-1}
 \end{bmatrix},\qquad b_T=\begin{bmatrix}0\\0\\-1/m\end{bmatrix}.
 \]
+
+\section*{2.7 -- Transfer functions from the linearized dynamics}
+
+\approvalbox
+
+With $J$ diagonal, each block of $A,B$ from 2.6 decouples into three independent second-order chains, read off row by row.
+
+\noindent\textbf{Attitude channels.} $\dot{\tilde\lambda}=\tilde\omega$ and $\dot{\tilde\omega}=J^{-1}\tilde n$ give, componentwise, $\ddot\phi=\tilde n_x/J_{xx}$, $\ddot\theta=\tilde n_y/J_{yy}$, $\ddot\psi=\tilde n_z/J_{zz}$. Hence
+\[
+G_\phi(s)=\frac{1}{J_{xx}s^2}, \qquad G_\theta(s)=\frac{1}{J_{yy}s^2}, \qquad G_\psi(s)=\frac{1}{J_{zz}s^2}.
+\]
+
+\noindent\textbf{Vertical channel.} $\dot{\tilde z}=\tilde w$ and $\dot{\tilde w}=-\tilde T/m$ (third rows of the $\dot{\tilde p}=\tilde v$ and $\dot{\tilde v}=A_{v\lambda}\tilde\lambda+b_T\tilde T$ blocks) give $\ddot{\tilde z}=-\tilde T/m$, so
+\[
+G_z(s)=\frac{Z(s)}{T(s)}=-\frac{1}{ms^2}.
+\]
+
+\noindent\textbf{Horizontal channels.} From $A_{v\lambda}$: $\dot{\tilde u}=-g\tilde\theta$ and $\dot{\tilde v}=g\tilde\phi$ (first two rows), together with $\dot{\tilde x}=\tilde u$, $\dot{\tilde y}=\tilde v$, give $\ddot{\tilde x}=-g\tilde\theta$ and $\ddot{\tilde y}=g\tilde\phi$. Substituting $\Theta(s)=G_\theta(s)N_y(s)$ and $\Phi(s)=G_\phi(s)N_x(s)$:
+\[
+G_x(s)=\frac{X(s)}{N_y(s)}=-\frac{g}{J_{yy}s^4}, \qquad G_y(s)=\frac{Y(s)}{N_x(s)}=\frac{g}{J_{xx}s^4}.
+\]
+
+Note $\tilde x,\tilde y,\tilde z$ here are the components of ${}^B\tilde p$ (the state chosen in 2.4--2.6), not of the inertial $p$ directly -- relevant for the discussion in 2.8.
+
+\section*{2.8 -- Relating $G_\phi,G_y$ and $G_\theta,G_x$}
+
+\approvalbox
+
+Dividing the horizontal transfer functions from 2.7 by the corresponding attitude ones:
+\[
+G_y(s)=\frac{g}{s^2}\,G_\phi(s), \qquad G_x(s)=-\frac{g}{s^2}\,G_\theta(s).
+\]
+
+\noindent\textbf{Physical interpretation.} Tilting about $x_B$ (roll, $\phi$) tips the thrust vector toward $y_B$, producing a horizontal acceleration $g\phi$; tilting about $y_B$ (pitch, $\theta$) tips it toward $-x_B$, producing $-g\theta$. Position is acceleration integrated twice, so each horizontal transfer function is exactly its attitude counterpart cascaded with two extra integrators and a gain $g$: attitude must first build up before it can move the vehicle, it never happens instantaneously.
+
+\noindent\textbf{Effect of $\psi_0$.} $\tilde x,\tilde y$ are body-frame quantities (${}^B\tilde p$), so they relate to the actual inertial horizontal displacement via $R_z(\psi_0)$, which mixes $x$ and $y$ whenever $\psi_0\neq0$ (unlike $\tilde z$, which is unaffected by yaw, cf. 2.9). A roll input therefore does not move the vehicle purely along inertial North or East once $\psi_0\neq0$: the decoupled pairing $G_\phi\!\leftrightarrow\!G_y$, $G_\theta\!\leftrightarrow\!G_x$ only holds in body coordinates, and any outer position-loop working in the inertial frame must rotate its commanded accelerations by $\psi_0$ before splitting them into roll/pitch references -- exactly the yaw-compensation stage present between the position and attitude loops of a real flight controller.
+
+\section*{2.9 -- Height control schemes}
+
+\approvalbox
+
+\noindent\textbf{Plant.} With $h=-z$ and $h_0=-z_0$, $\tilde h=-\tilde z$; since equilibrium hover has $\phi_0=\theta_0=0$, yaw alone does not affect the $z$-component (cf. 2.8), so $\tilde z={}^B\tilde p_z$ exactly and $H(s)=-\tilde Z(s)$. From 2.7, $G_z(s)=-1/(ms^2)$, so
+\[
+\frac{H(s)}{T(s)}=-G_z(s)=\frac{1}{ms^2},
+\]
+matching the cascade $\frac{1}{ms}\!\to\!\frac1s$ (force$\to\dot h\to h$) shown in Figs.\ 2--3.
+
+\noindent\textbf{Closed-loop transfer functions.} For Fig.\ 3 (series PD), $T=(k_p+k_ds)(H_{ref}-H)$ directly gives
+\[
+\frac{H(s)}{H_{ref}(s)}=\frac{k_ds+k_p}{ms^2+k_ds+k_p}.
+\]
+For Fig.\ 2 (cascade), the inner loop around $1/(ms)$ with feedback $k_d$ gives $\dot H=\frac{1}{ms}\big[k_p(H_{ref}-H)-k_ds H\big]$; solving for $H$:
+\[
+\frac{H(s)}{H_{ref}(s)}=\frac{k_p}{ms^2+k_ds+k_p}.
+\]
+The two share the same denominator (same poles, same root-locus in $k_p$ for fixed $k_d$, cf.\ 2.10) but Fig.\ 3 has an extra zero at $s=-k_p/k_d$.
+
+\noindent\textbf{Differences.} Writing $G_3=G_2+\frac{k_ds}{ms^2+k_ds+k_p}$, the Fig.\ 3 step response equals the Fig.\ 2 response plus a term that starts at $0$ with slope $k_dA/m>0$: Fig.\ 3 always overshoots more for the same $(k_p,k_d)$. Computing $T(s)$ for a step $H_{ref}(s)=A/s$ in each scheme and applying the initial value theorem gives $T(0^+)=k_pA$ (finite) for Fig.\ 2, but $T(0^+)\to\infty$ for Fig.\ 3 -- the series PD differentiates the reference itself, so a step $h_{ref}$ demands an infinite instantaneous thrust ("derivative kick"), while the cascade never differentiates $h_{ref}$, only the measured $h$. Likewise, if $\dot h$ in Fig.\ 2 comes from a genuine rate measurement (rather than from numerically differentiating $h$), its noise-to-actuator gain is the flat $|k_d|$, whereas Fig.\ 3's $k_ds$ branch has gain $|k_d\omega|$, unbounded in frequency -- it amplifies high-frequency sensor noise that the cascade avoids.
+
+\noindent\textbf{Advantages/disadvantages.} Fig.\ 2 (cascade): smoother, more predictable step response (no zero), no derivative kick, and -- if a rate sensor is available -- no derivative-induced noise amplification; but it needs access to a real $\dot h$ signal and is structurally more complex (nested loop). Fig.\ 3 (series PD): simpler to implement (single compensator) and reacts faster to reference changes, at the cost of more overshoot, an unrealizable derivative kick on step references, and noise amplification if $\dot h$ must be obtained by differentiating a noisy $h$.
+
 \end{document}
