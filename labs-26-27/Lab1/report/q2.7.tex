@@ -1,0 +1,46 @@
+\subsection*{Question 2.7 - Transfer functions}
+
+We use the linearized system of Question 2.6, written element by element, with $\tilde x = (\tilde x, \tilde y, \tilde z, \tilde\phi, \tilde\theta, \tilde\psi, \tilde u, \tilde v, \tilde w, \tilde p, \tilde q, \tilde r)^T$ and $\tilde u = (\tilde T, \tilde n_x, \tilde n_y, \tilde n_z)^T$.
+(Here $\tilde u$ and $\tilde v$ in the state denote the first two components of the velocity error, not the input vector or the whole velocity.)
+Since the system is linear and time invariant, each transfer function is obtained by taking the Laplace transform of the relevant equations with zero initial conditions.
+We assume $J = \mathrm{diag}(J_{xx}, J_{yy}, J_{zz})$, so $J^{-1}$ is diagonal and the dynamics of the three rotation axes are decoupled.
+
+\paragraph{Step 1 - Attitude channels.}
+The last two block rows of the system are $\dot{\tilde\lambda} = \tilde\omega$ and $\dot{\tilde\omega} = J^{-1}\tilde n$.
+Componentwise they read
+\begin{equation*}
+\ddot{\tilde\phi} = \frac{\tilde n_x}{J_{xx}}, \qquad
+\ddot{\tilde\theta} = \frac{\tilde n_y}{J_{yy}}, \qquad
+\ddot{\tilde\psi} = \frac{\tilde n_z}{J_{zz}} .
+\end{equation*}
+In the Laplace domain every double derivative becomes a multiplication by $s^2$, so
+\begin{equation*}
+G_\phi(s) = \frac{\Phi(s)}{N_x(s)} = \frac{1}{J_{xx}\, s^2}, \qquad
+G_\theta(s) = \frac{\Theta(s)}{N_y(s)} = \frac{1}{J_{yy}\, s^2}, \qquad
+G_\psi(s) = \frac{\Psi(s)}{N_z(s)} = \frac{1}{J_{zz}\, s^2}.
+\end{equation*}
+Each attitude angle behaves as a double integrator driven by its own torque.
+
+\paragraph{Step 2 - Vertical channel.}
+The third components of $\dot{\tilde p} = \tilde v$ and of $\dot{\tilde v} = A_{v\lambda}\tilde\lambda + b_T\tilde T$ are $\dot{\tilde z} = \tilde w$ and $\dot{\tilde w} = -\tilde T/m$.
+(The third row of $A_{v\lambda}$ is zero, so the vertical channel does not depend on the attitude.)
+Combining them, $\ddot{\tilde z} = -\tilde T / m$, and
+\begin{equation*}
+G_z(s) = \frac{Z(s)}{T(s)} = -\frac{1}{m\, s^2}.
+\end{equation*}
+The minus sign appears because $z$ points down: more thrust makes the vehicle go up, that is, towards negative $z$.
+
+\paragraph{Step 3 - Horizontal channels.}
+The first two components of the velocity equations are $\dot{\tilde u} = -g\,\tilde\theta$ and $\dot{\tilde v} = g\,\tilde\phi$.
+Together with $\dot{\tilde x} = \tilde u$ and $\dot{\tilde y} = \tilde v$ they give
+\begin{equation*}
+\ddot{\tilde x} = -g\,\tilde\theta, \qquad \ddot{\tilde y} = g\,\tilde\phi .
+\end{equation*}
+In the Laplace domain, $X(s) = -\frac{g}{s^2}\,\Theta(s)$ and $Y(s) = \frac{g}{s^2}\,\Phi(s)$.
+Substituting $\Theta(s) = G_\theta(s) N_y(s)$ and $\Phi(s) = G_\phi(s) N_x(s)$ from Step 1,
+\begin{equation*}
+G_x(s) = \frac{X(s)}{N_y(s)} = -\frac{g}{J_{yy}\, s^4}, \qquad
+G_y(s) = \frac{Y(s)}{N_x(s)} = \frac{g}{J_{xx}\, s^4}.
+\end{equation*}
+Note that $\tilde x$, $\tilde y$ and $\tilde z$ are the components of the position error $\tilde p$ defined in Question 2.6, that is, $R^T(p - p_0)$, and not of the inertial position error.
+The horizontal position responds to the torque with four integrators: two from the torque to the angle, and two from the angle (through the tilted thrust) to the position.

@@ -1,0 +1,37 @@
+\subsection*{Question 2.8 - Relation between attitude and horizontal channels}
+
+\paragraph{Relation between the transfer functions.}
+Dividing the horizontal transfer functions of Question 2.7 by the attitude ones, the inertia and the input cancel and only a double integrator and the gravity remain:
+\begin{equation*}
+G_y(s) = \frac{g}{s^2}\, G_\phi(s), \qquad
+G_x(s) = -\frac{g}{s^2}\, G_\theta(s).
+\end{equation*}
+In words, each horizontal channel is the corresponding attitude channel cascaded with a gain $\pm g$ and two integrators.
+
+\paragraph{Physical interpretation.}
+The rotors can only produce a force along $-z_B$.
+So the vehicle has no direct way of pushing itself sideways, and to accelerate horizontally it must first tilt, so that a component of the thrust points in the desired direction.
+When the thrust balances the weight ($T \approx m g$), a small roll angle $\phi$ tilts the thrust vector towards $+y_B$ and produces a horizontal acceleration of $g\phi$ along $y_B$.
+A small pitch angle $\theta$ tilts the thrust towards $-x_B$ and produces an acceleration $-g\theta$ along $x_B$, which explains the minus sign in $G_x$.
+The position is the double integral of the acceleration, which is the factor $g/s^2$ above.
+This means that the horizontal position can only be controlled indirectly through the attitude: the angle has to build up first (its own double integrator), and then the position reacts.
+This is the reason for the cascade structure of the controller, with a fast inner attitude loop and a slower outer position loop.
+It also shows that the horizontal channels are harder to control than the vertical one, as they have relative degree four (four integrators) instead of two.
+
+\paragraph{Effect of the yaw equilibrium $\psi_0$.}
+The matrices $A$ and $B$ of Question 2.6 do not depend on $\psi_0$.
+This is because the error $\tilde p = R^T(\lambda)(p - p_0)$ is expressed in body-aligned axes, and the dependence on the heading is removed by the rotation $R^T$.
+Consequently the transfer functions $G_\phi, G_\theta, G_\psi, G_x, G_y, G_z$, and the relations above, are exactly the same for every choice of $\psi_0$.
+
+What does depend on $\psi_0$ is the meaning of $\tilde x$ and $\tilde y$ in the inertial frame.
+To first order, $p - p_0 = R(\lambda)\,\tilde p \approx R_z(\psi_0)\,\tilde p$, so
+\begin{equation*}
+\begin{bmatrix} \Delta p_N \\ \Delta p_E \end{bmatrix} \approx
+\begin{bmatrix} \cos\psi_0 & -\sin\psi_0 \\ \sin\psi_0 & \cos\psi_0 \end{bmatrix}
+\begin{bmatrix} \tilde x \\ \tilde y \end{bmatrix},
+\qquad \Delta p_D = \tilde z .
+\end{equation*}
+For $\psi_0 = 0$ the body-aligned and inertial axes coincide, so a roll moves the vehicle along the inertial $y$ axis and a pitch along the inertial $x$ axis.
+For $\psi_0 \neq 0$ the pairing $G_\phi \leftrightarrow G_y$, $G_\theta \leftrightarrow G_x$ still holds, but only along the heading-aligned axes: a roll command moves the vehicle along the direction of $y_B$, which is rotated by $\psi_0$ with respect to the inertial $y$ axis.
+The vertical channel is not affected, since $z$ is the rotation axis of the yaw.
+In practice, an outer position loop working in the inertial frame must rotate the desired horizontal accelerations by $\psi_0$ before turning them into roll and pitch references.

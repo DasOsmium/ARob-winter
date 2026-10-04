@@ -1,0 +1,47 @@
+\subsection*{Question 2.2 - Body frame rotated by $45^\circ$}
+
+In the real AR.Drone the axis $x_B$ lies midway between the arms of rotors 1 and 2, instead of pointing along the arm of rotor 1 as in Fig.~1.
+We call this new frame $\{B'\}$.
+It shares the axis $z_B$ with the old frame and is obtained by rotating it about $z_B$ by an angle of $-45^\circ$ (the new $x_{B'}$ lies between $+x_B$, the arm of rotor 1, and $-y_B$, the arm of rotor 2).
+Hence, expressed in the old frame,
+\begin{equation*}
+x_{B'} = \frac{1}{\sqrt{2}}\begin{bmatrix} 1 \\ -1 \\ 0 \end{bmatrix}, \qquad
+y_{B'} = z_B \times x_{B'} = \frac{1}{\sqrt{2}}\begin{bmatrix} 1 \\ 1 \\ 0 \end{bmatrix}, \qquad
+z_{B'} = z_B .
+\end{equation*}
+
+\paragraph{The force does not change.}
+Every thrust still points along $-z_B = -z_{B'}$, so $N$ keeps exactly the same form.
+Gravity is still rotated from $\{I\}$ to the body frame with the transpose of the rotation matrix of that frame, so $M = R^T(\lambda)$ keeps the same form too.
+The only subtle point is that the Euler angles $\lambda$ now describe the attitude of $\{B'\}$ instead of $\{B\}$, which just means the yaw angle is shifted by a constant offset.
+So the expression for $f$ in terms of $f_g$ and $f_T$ is unchanged.
+
+\paragraph{The torque changes.}
+The torque $n = P f_T$ is a vector expressed in the body axes, and the arms of the rotors are now displaced by $45^\circ$ from the axes.
+Writing the rotor positions in the new basis (projecting each $r_i$ onto $x_{B'}$ and $y_{B'}$) gives
+\begin{equation*}
+r_1' = \tfrac{r\sqrt{2}}{2}\,(1,\ 1,\ 0), \quad
+r_2' = \tfrac{r\sqrt{2}}{2}\,(1,\ -1,\ 0), \quad
+r_3' = \tfrac{r\sqrt{2}}{2}\,(-1,\ -1,\ 0), \quad
+r_4' = \tfrac{r\sqrt{2}}{2}\,(-1,\ 1,\ 0).
+\end{equation*}
+Each rotor now sits at $45^\circ$ from both horizontal axes, so every thrust contributes to both the roll and the pitch torque.
+Using again $r_i \times (-f_i e_3) = (-f_i\, r_{y},\ f_i\, r_{x},\ 0)$ and summing over the rotors,
+\begin{equation*}
+n_x = \frac{r\sqrt{2}}{2}\,(-f_1 + f_2 + f_3 - f_4), \qquad
+n_y = \frac{r\sqrt{2}}{2}\,(f_1 + f_2 - f_3 - f_4).
+\end{equation*}
+The yaw torque $n_z = c\,(f_1 - f_2 + f_3 - f_4)$ does not change, because the reaction torque only depends on the spin direction and acts about the unchanged axis $z_B$.
+The new matrix is
+\begin{equation*}
+P' = \begin{bmatrix}
+-\frac{\sqrt{2}}{2}\,r & \frac{\sqrt{2}}{2}\,r & \frac{\sqrt{2}}{2}\,r & -\frac{\sqrt{2}}{2}\,r \\[4pt]
+\frac{\sqrt{2}}{2}\,r & \frac{\sqrt{2}}{2}\,r & -\frac{\sqrt{2}}{2}\,r & -\frac{\sqrt{2}}{2}\,r \\[4pt]
+c & -c & c & -c
+\end{bmatrix} \neq P .
+\end{equation*}
+
+\paragraph{Consistency check.}
+The new torque is just the old torque written in the rotated axes.
+Projecting $n$ onto $x_{B'}$ and $y_{B'}$ gives $n_x' = (n_x - n_y)/\sqrt{2}$ and $n_y' = (n_x + n_y)/\sqrt{2}$.
+Substituting $n_x = r(f_2 - f_4)$ and $n_y = r(f_1 - f_3)$ from Question 2.1 reproduces the expressions above, so $P' = R_z(45^\circ)\,P$ (with $R_z(45^\circ)$ acting on the three components of $n$), as expected.

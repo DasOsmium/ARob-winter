@@ -1,0 +1,62 @@
+\subsection*{Question 4.2 - Second-order model with a minimum-phase zero for the closed-loop pitch}
+
+\paragraph{Step 1 - Model and cost function.}
+We look for a second-order system with one minimum-phase zero (a zero in the left half-plane),
+\begin{equation*}
+G(s) = \frac{K\,(s + z)}{s^2 + 2\zeta\omega_n s + \omega_n^2}, \qquad z > 0 ,
+\end{equation*}
+with four parameters $p = [K,\ z,\ \omega_n,\ \zeta]$.
+Only the amplitudes of the response were measured, so the fit is done on the gain (the magnitude of the frequency response),
+\begin{equation*}
+|G(j\omega; p)| = \frac{K\sqrt{\omega^2 + z^2}}{\sqrt{(\omega_n^2 - \omega^2)^2 + 4\zeta^2\omega_n^2\omega^2}} .
+\end{equation*}
+The measured gain at each tested frequency $\omega_i = 1, 5, 10, 15, 20$ rad/s is $g_i = A_{res,i}/A_{ref,i}$ (Table~\ref{tab:pitch-bode}).
+The parameters are the ones that minimize the sum of the squared differences between the measured and the model gain,
+\begin{equation*}
+J(p) = \sum_{i=1}^{5} \big( g_i - |G(j\omega_i; p)| \big)^2 , \qquad p^\star = \arg\min_p J(p) ,
+\end{equation*}
+that is, written explicitly,
+\begin{equation*}
+J(K, z, \omega_n, \zeta) = \sum_{i=1}^{5} \left( \frac{A_{res,i}}{A_{ref,i}} - \frac{K\sqrt{\omega_i^2 + z^2}}{\sqrt{(\omega_n^2 - \omega_i^2)^2 + 4\zeta^2\omega_n^2\omega_i^2}} \right)^2 .
+\end{equation*}
+The magnitude does not depend on the sign of $z$, so the minimum-phase condition is imposed afterwards by taking $z > 0$.
+For the same reason, the fit cannot distinguish the minimum-phase from the non-minimum-phase case by itself.
+$J$ is nonlinear in $p$, so it is minimized numerically with the MATLAB function \texttt{nlinfit} (script \texttt{fit\_pitch\_bode.m}), as suggested in the handout.
+By default, \texttt{nlinfit} solves this nonlinear least-squares problem with the Levenberg-Marquardt algorithm, which interpolates between Gauss-Newton and gradient descent, starting from an initial guess $p_0 = [1,\ 20,\ 7,\ 0.5]$.
+
+\paragraph{Step 2 - Result.}
+The result is
+\begin{equation*}
+K = 0.909, \qquad z = 21.2 \text{ rad/s}, \qquad \omega_n = 6.82 \text{ rad/s}, \qquad \zeta = 0.492 ,
+\end{equation*}
+that is,
+\begin{equation*}
+G(s) = \frac{0.909\, s + 19.3}{s^2 + 6.71\, s + 46.5} = \frac{0.909\,(s + 21.2)}{s^2 + 6.71\, s + 46.5} .
+\end{equation*}
+Other initial guesses (for example $[1, 5, 7, 0.5]$ and $[0.5, 50, 6, 1]$) lead to the same solution, so the fit does not depend on the starting point.
+
+\paragraph{Step 3 - Quality of the fit.}
+Table~\ref{tab:pitch-bode-fit} compares the measured and the fitted gains.
+The root-mean-square error is $6.3 \times 10^{-3}$ in amplitude ratio.
+The model follows the data at $1$, $5$ and $10$ rad/s (within $0.1$ dB), but at $15$ and $20$ rad/s the errors are $+0.8$ and $-1.2$ dB, which is $8$ to $15\%$ of the measured amplitude ratio.
+These errors are larger than the uncertainty of the amplitudes (about $5\%$ at $20$ rad/s), and they have opposite signs: the model is below the data at $15$ rad/s and above it at $20$ rad/s, so the measured gain falls faster than the fitted model at high frequency.
+The structure therefore does not fully capture the high-frequency roll-off.
+
+\paragraph{Step 4 - Discussion.}
+The identified parameters give the following picture of the closed-loop pitch.
+\begin{itemize}
+\item \emph{DC gain.} $G(0) = K z / \omega_n^2 = 19.26 / 46.54 \approx 0.414$ ($-7.7$ dB), consistent with the measured gain at $1$ rad/s ($0.418$).
+It is below $1$ because the output is the angle in rad and the input is the raw command, so $0.414$ is the steady-state angle per unit of command.
+\item \emph{Dynamics.} $\omega_n = 6.82$ rad/s and $\zeta = 0.492$, so the poles are complex, $s = -3.35 \pm 5.94\,j$.
+The system is underdamped, with a small resonance peak of about $0.50$ ($-6.1$ dB) near $5$ rad/s, which agrees with the maximum of the measured data at $5$ rad/s.
+The $-3$ dB bandwidth (relative to the DC gain) is about $9$ rad/s.
+\item \emph{Zero.} The zero at $s = -z = -21.2$ rad/s lies well above $\omega_n$, so it only slows down the roll-off at high frequency, instead of shaping the response around the resonance.
+It is therefore the least well determined parameter, because the data only reach $20$ rad/s.
+\end{itemize}
+
+\paragraph{Limitations.}
+The model has four parameters and only five data points, so there is a single degree of freedom left, and the good fit at low frequency is not strong evidence that the structure is right.
+The amplitude of the reference also changes from run to run, so any amplitude-dependent nonlinearity (saturation, dead zone, drone onboard controller) is mixed with the frequency dependence.
+Finally, the Wi-Fi link and the onboard processing add a delay that is not in the model.
+A delay does not change the magnitude, but it adds phase lag.
+This can be checked against the step profile in Question 4.3.

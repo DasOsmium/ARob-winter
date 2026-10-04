@@ -8,7 +8,7 @@ function res = identify_height_cl(file)
 %       4. fit %% (compare) and RMSE in cm (rmse.m), the comparable metric
 %
 %   Example:
-%       res = identify_height_cl('../experiments_Pedro/real/scope_kp1_step0p8.mat');
+%       res = identify_height_cl('../experiments_Pedro/real/dadosaltura1.55_1.mat');
 
 d   = load_height_run(file);
 idw = height_iddata(d);

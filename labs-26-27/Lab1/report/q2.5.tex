@@ -1,0 +1,50 @@
+\subsection*{Question 2.5 - Hover equilibrium}
+
+A pair $(x_0, u_0)$ is an equilibrium of $\dot x = g(x, u)$ if and only if $g(x_0, u_0) = 0$.
+Writing $u_0 = (T_0, n_0)$, the four blocks obtained in Question 2.4 must vanish at the same time:
+\begin{align*}
+v_0 - S(\omega_0)\, {}^B p_0 &= 0, &
+-S(\omega_0) v_0 + g\, R^T(\lambda_0) e_3 - \tfrac{T_0}{m}\, e_3 &= 0, \\
+Q(\lambda_0)\, \omega_0 &= 0, &
+J^{-1}\big(n_0 - S(\omega_0) J \omega_0\big) &= 0 .
+\end{align*}
+
+\paragraph{Step 1 - Angular velocity, torque and velocity.}
+The matrix $Q(\lambda)$ has determinant $1/\cos\theta$, so it is invertible for $\theta \in\, ]{-\pi/2}, \pi/2[$, which is the range allowed by the handout.
+The third equation then forces $\omega_0 = 0$.
+Substituting in the fourth equation gives $n_0 = 0$: at equilibrium there is no net torque.
+Substituting $\omega_0 = 0$ in the first equation gives $v_0 = 0$: the vehicle is at rest.
+
+\paragraph{Step 2 - Thrust and attitude.}
+With $\omega_0 = 0$ the second equation reduces to $g\, R^T(\lambda_0) e_3 = (T_0/m)\, e_3$.
+Using the expression of $R^T(\lambda) e_3$ from Question 2.4 and writing it component by component,
+\begin{equation*}
+-g \sin\theta_0 = 0, \qquad
+g \sin\phi_0 \cos\theta_0 = 0, \qquad
+g \cos\phi_0 \cos\theta_0 = \frac{T_0}{m}.
+\end{equation*}
+The first equation gives $\theta_0 = 0$ (the only solution in $]{-\pi/2}, \pi/2[$).
+Then $\cos\theta_0 = 1$, and the second equation gives $\sin\phi_0 = 0$, so $\phi_0 = 0$ or $\phi_0 = \pi$.
+The third equation reads $T_0 = m g \cos\phi_0$.
+The thrust of the rotors can only push, so $T_0 \geq 0$, which excludes $\phi_0 = \pi$ (an upside-down vehicle would need a negative thrust to hover).
+Hence $\phi_0 = 0$, and
+\begin{equation*}
+\theta_0 = 0, \qquad \phi_0 = 0, \qquad T_0 = m g .
+\end{equation*}
+The yaw angle $\psi_0$ does not appear in any of the equations, because $R^T(\lambda) e_3$ does not depend on $\psi$.
+So $\psi_0$ is a free parameter, as stated in the question.
+
+\paragraph{Step 3 - The equilibrium position in $\{B\}$.}
+The equilibrium attitude is $\lambda_0 = (0, 0, \psi_0)^T$, so $R(\lambda_0) = R_z(\psi_0)$ is a pure rotation about the vertical axis.
+The position in the body frame is therefore ${}^B p_0 = R_z^T(\psi_0)\, p_0$, which is consistent with the first equation, since $v_0 = 0$ and $\omega_0 = 0$.
+
+\paragraph{Result.}
+\begin{equation*}
+x_0 = \begin{bmatrix} R_z^T(\psi_0)\, p_0 \\ 0_{3\times 1} \\ \begin{bmatrix} 0 & 0 & \psi_0 \end{bmatrix}^T \\ 0_{3\times 1} \end{bmatrix}, \qquad
+u_0 = \begin{bmatrix} m g \\ 0_{3\times 1} \end{bmatrix}.
+\end{equation*}
+
+\paragraph{Physical interpretation.}
+At hover the vehicle has no linear or angular velocity, there is no net torque, and the roll and pitch angles are zero, so the thrust points straight up and exactly cancels the weight, $T_0 = m g$.
+Through the mixer of Question 2.3, $f_{T,0} = L^{-1} u_0 = \tfrac{m g}{4}\,(1, 1, 1, 1)^T$, so the four rotors share the load equally.
+The position $p_0$ and the heading $\psi_0$ are free, because both gravity and the thrust (along $z_B$) are unchanged by a translation or by a rotation about the vertical axis: the quadrotor can hover at any point and with any heading.

@@ -1,0 +1,73 @@
+\subsection*{Question 2.1 - Force and torque as functions of the rotor thrusts}
+
+The goal is to write the total external force $f$ and torque $n$ acting on the quadrotor, both expressed in the body frame $\{B\}$, as linear functions of the four rotor thrusts $f_T$ and of the gravity force $f_g$.
+
+\paragraph{Conventions.}
+We use the frame and numbering of Fig.~1 of the handout.
+The axes $x_B$, $y_B$ and $z_B$ form a right-handed frame with $z_B$ pointing down, so every rotor thrust $f_i$ points along $-z_B$.
+Let $r > 0$ denote the distance from the center of mass to each rotor (the arm length).
+Reading the position of the rotors off the figure, the rotors lie along the body axes at
+\begin{equation*}
+r_1 = \begin{bmatrix} r \\ 0 \\ 0 \end{bmatrix}, \qquad
+r_2 = \begin{bmatrix} 0 \\ -r \\ 0 \end{bmatrix}, \qquad
+r_3 = \begin{bmatrix} -r \\ 0 \\ 0 \end{bmatrix}, \qquad
+r_4 = \begin{bmatrix} 0 \\ r \\ 0 \end{bmatrix}.
+\end{equation*}
+
+\paragraph{Step 1 - Force.}
+Two things push on the vehicle: gravity and the four rotors.
+Gravity is naturally given in the inertial frame, $f_g = m g\, e_3$.
+Since $R(\lambda)$ rotates vectors from $\{B\}$ to $\{I\}$, its transpose expresses an inertial vector in $\{B\}$, so the gravity force in $\{B\}$ is $R^T(\lambda) f_g$.
+Each rotor produces a force $-f_i e_3$ that is already written in $\{B\}$.
+Adding the four contributions gives the total thrust force
+\begin{equation*}
+-\sum_{i=1}^{4} f_i\, e_3 = -e_3 \begin{bmatrix} 1 & 1 & 1 & 1 \end{bmatrix} f_T .
+\end{equation*}
+Therefore
+\begin{equation*}
+f = \underbrace{R^T(\lambda)}_{M} f_g + \underbrace{\Big(-e_3 \begin{bmatrix} 1 & 1 & 1 & 1 \end{bmatrix}\Big)}_{N} f_T ,
+\end{equation*}
+that is,
+\begin{equation*}
+M = R^T(\lambda), \qquad
+N = \begin{bmatrix} 0 & 0 & 0 & 0 \\ 0 & 0 & 0 & 0 \\ -1 & -1 & -1 & -1 \end{bmatrix}.
+\end{equation*}
+The matrix $M$ depends on the attitude because gravity is defined in $\{I\}$ and its direction, seen from the body, changes as the vehicle rotates.
+The matrix $N$ is constant because the thrusts always act along the same body axis.
+
+\paragraph{Step 2 - Torque from the thrusts.}
+A force $F_i$ applied at the position $r_i$ produces the torque $r_i \times F_i$ about the center of mass.
+With $F_i = (0, 0, -f_i)^T$ and $r_i = (r_{x}, r_{y}, 0)^T$ we have
+\begin{equation*}
+r_i \times F_i = \begin{bmatrix} -f_i\, r_{y} \\ f_i\, r_{x} \\ 0 \end{bmatrix}.
+\end{equation*}
+Evaluating this for each rotor:
+\begin{align*}
+\text{rotor 1: } & (0,\ r f_1,\ 0), &
+\text{rotor 2: } & (r f_2,\ 0,\ 0), \\
+\text{rotor 3: } & (0,\ -r f_3,\ 0), &
+\text{rotor 4: } & (-r f_4,\ 0,\ 0).
+\end{align*}
+Summing the contributions, the thrusts produce a roll torque $n_x = r(f_2 - f_4)$ and a pitch torque $n_y = r(f_1 - f_3)$, and no yaw torque.
+
+\paragraph{Step 3 - Torque from the rotor drag.}
+Besides the thrust, every spinning rotor exerts a reaction torque $n_i = c f_i$ on the airframe about $z_B$.
+The sign of this torque depends on the spin direction.
+In Fig.~1 rotors 1 and 3 spin one way and rotors 2 and 4 the other way (the counter-rotating pairs), which gives
+\begin{equation*}
+n_z = c\,(f_1 - f_2 + f_3 - f_4).
+\end{equation*}
+Opposite spin directions are exactly what allows the vehicle to produce a yaw torque by speeding up one pair and slowing down the other.
+
+\paragraph{Step 4 - Assembling $P$.}
+Collecting the three components,
+\begin{equation*}
+n = \begin{bmatrix} n_x \\ n_y \\ n_z \end{bmatrix} = P f_T, \qquad
+P = \begin{bmatrix} 0 & r & 0 & -r \\ r & 0 & -r & 0 \\ c & -c & c & -c \end{bmatrix}.
+\end{equation*}
+In summary, equations (2) and (3) hold with
+\begin{equation*}
+M = R^T(\lambda), \qquad
+N = -e_3 \begin{bmatrix} 1 & 1 & 1 & 1 \end{bmatrix}, \qquad
+P \text{ as above.}
+\end{equation*}
