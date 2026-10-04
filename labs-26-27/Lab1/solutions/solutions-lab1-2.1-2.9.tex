@@ -135,8 +135,20 @@ v - S(\omega)\,{}^B\!p \\[4pt]
 -S(\omega)v + g\,R^T(\lambda)\mathbf{e}_3 - (T/m)\mathbf{e}_3 \\[4pt]
 Q(\lambda)\,\omega \\[4pt]
 J^{-1}\big(u_{2:4} - S(\omega)J\omega\big)
-\end{bmatrix},
+\end{bmatrix}.
 \]
+
+\noindent\textbf{Alternative state $x_1$.} For $x_1 = [p^T\ v^T\ \lambda^T\ \omega^T]^T$ the position is kept in the inertial frame, so the first block is just the linear kinematics $\dot p = R(\lambda)v$. The other three blocks do not involve ${}^B\!p$ and are unchanged:
+\[
+\dot x_1 = g_1(x_1,u) =
+\begin{bmatrix}
+R(\lambda)\,v \\[4pt]
+-S(\omega)v + g\,R^T(\lambda)\mathbf{e}_3 - (T/m)\mathbf{e}_3 \\[4pt]
+Q(\lambda)\,\omega \\[4pt]
+J^{-1}\big(u_{2:4} - S(\omega)J\omega\big)
+\end{bmatrix}.
+\]
+The two models differ only in the first block: $R(\lambda)v$ in $g_1$ versus $v - S(\omega)\,{}^B\!p$ in $g$.
 
 \section*{2.5 -- Equilibrium point for hover}
 

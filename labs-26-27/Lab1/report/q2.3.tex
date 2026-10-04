@@ -1,0 +1,60 @@
+\subsection*{Question 2.3 - Input transformation $u = L f_T$}
+
+\paragraph{Step 1 - Building $L$.}
+The new input stacks the total thrust $T$ on top of the torque vector $n$.
+The total thrust is $T = f_1 + f_2 + f_3 + f_4 = \begin{bmatrix} 1 & 1 & 1 & 1 \end{bmatrix} f_T$, and the torque is $n = P f_T$ from Question 2.1.
+Stacking the two,
+\begin{equation*}
+u = \begin{bmatrix} T \\ n \end{bmatrix} = L f_T, \qquad
+L = \begin{bmatrix} 1 & 1 & 1 & 1 \\ 0 & r & 0 & -r \\ r & 0 & -r & 0 \\ c & -c & c & -c \end{bmatrix} \in \mathbb{R}^{4\times 4}.
+\end{equation*}
+
+\paragraph{Step 2 - Why this transformation is useful.}
+The rigid-body model only depends on the rotor thrusts through two quantities.
+The total thrust $T$ enters the translational dynamics, where it acts along $z_B$, and the torque $n$ enters the rotational dynamics.
+In terms of the individual thrusts $f_i$ the problem is coupled: changing a single $f_i$ changes the total thrust and also one or two components of the torque.
+In terms of $u$ the problem is decoupled into four virtual channels: one for the thrust (height) and one for each of the roll, pitch and yaw torques.
+This has several advantages:
+\begin{itemize}
+\item The attitude and height controllers can be designed directly in terms of $T$ and $n$, each acting on its own channel, which is what the rest of the lab does.
+\item The transformation is linear, constant and invertible, so it introduces no extra dynamics or nonlinearity, and the controllers can ignore the rotor layout and the constants $r$ and $c$.
+\item The physical commands for the four rotors are only recovered at the very end, through $L^{-1}$. This stage is known as the control allocation or mixer of a flight controller.
+\end{itemize}
+The only caveat is that not every $u$ can be realized, since each $f_i$ must be nonnegative and is bounded by the motors.
+So the mixer can saturate when a large torque is requested close to zero or to full thrust.
+
+\paragraph{Step 3 - Inverting the transformation.}
+We solve $L f_T = u$ for $f_T$ by combining pairs of equations.
+The four equations are
+\begin{equation*}
+f_1 + f_2 + f_3 + f_4 = T, \quad
+r(f_2 - f_4) = n_x, \quad
+r(f_1 - f_3) = n_y, \quad
+c(f_1 - f_2 + f_3 - f_4) = n_z .
+\end{equation*}
+Adding the first and last equations (the latter divided by $c$) isolates the sum of rotors 1 and 3, and subtracting them isolates the sum of rotors 2 and 4:
+\begin{equation*}
+f_1 + f_3 = \frac{T}{2} + \frac{n_z}{2c}, \qquad
+f_2 + f_4 = \frac{T}{2} - \frac{n_z}{2c}.
+\end{equation*}
+The second and third equations give the differences $f_2 - f_4 = n_x / r$ and $f_1 - f_3 = n_y / r$.
+Adding and subtracting each sum with the corresponding difference yields
+\begin{equation*}
+f_1 = \frac{T}{4} + \frac{n_y}{2r} + \frac{n_z}{4c}, \qquad
+f_2 = \frac{T}{4} + \frac{n_x}{2r} - \frac{n_z}{4c},
+\end{equation*}
+\begin{equation*}
+f_3 = \frac{T}{4} - \frac{n_y}{2r} + \frac{n_z}{4c}, \qquad
+f_4 = \frac{T}{4} - \frac{n_x}{2r} - \frac{n_z}{4c}.
+\end{equation*}
+In matrix form, $f_T = L^{-1} u$ with
+\begin{equation*}
+L^{-1} = \begin{bmatrix}
+\frac{1}{4} & 0 & \frac{1}{2r} & \frac{1}{4c} \\[4pt]
+\frac{1}{4} & \frac{1}{2r} & 0 & -\frac{1}{4c} \\[4pt]
+\frac{1}{4} & 0 & -\frac{1}{2r} & \frac{1}{4c} \\[4pt]
+\frac{1}{4} & -\frac{1}{2r} & 0 & -\frac{1}{4c}
+\end{bmatrix}.
+\end{equation*}
+The existence of this explicit solution also proves that $L$ is invertible whenever $r \neq 0$ and $c \neq 0$.
+The formula has a simple reading: each rotor gets a quarter of the total thrust, plus or minus the amounts needed to produce the requested roll, pitch and yaw torques.

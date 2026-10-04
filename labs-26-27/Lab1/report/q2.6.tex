@@ -1,0 +1,68 @@
+\subsection*{Question 2.6 - Linearized dynamics}
+
+We linearize $\dot x = g(x, u)$ around the hover equilibrium $(x_0, u_0)$ of Question 2.5, using the error variables $\tilde x$ and $\tilde u = u - u_0 = (\tilde T, \tilde n)$, with $\tilde T = T - m g$ and $\tilde n = n$.
+At the equilibrium $v_0 = 0$, $\omega_0 = 0$, $\phi_0 = \theta_0 = 0$ and $\lambda_0 = (0, 0, \psi_0)^T$.
+The method is to write each block of $g$ in terms of the error variables and drop every term of second order or higher in $(\tilde x, \tilde u)$.
+The zeroth-order terms cancel because $g(x_0, u_0) = 0$.
+
+\paragraph{Step 1 - Position error.}
+The error $\tilde p = {}^B p - R^T(\lambda)\, p_0$ is not simply the difference of two positions, because the rotation $R(\lambda)$ that multiplies $p_0$ changes with the attitude.
+So we differentiate it directly.
+For the first term we use ${}^B\dot p = v - S(\omega)\, {}^B p$ from Question 2.4.
+For the second term, $p_0$ is constant and $\dot R^T = -S(\omega) R^T$, so $\frac{d}{dt}\big(R^T p_0\big) = -S(\omega)\, R^T p_0$.
+Subtracting,
+\begin{equation*}
+\dot{\tilde p} = v - S(\omega)\, {}^B p + S(\omega)\, R^T p_0 = v - S(\omega)\, \tilde p .
+\end{equation*}
+Since $v_0 = 0$ and $\omega_0 = 0$ we have $v = \tilde v$ and $\omega = \tilde\omega$, so $\dot{\tilde p} = \tilde v - S(\tilde\omega)\,\tilde p$.
+The last term is a product of two error variables, hence of second order, and
+\begin{equation*}
+\dot{\tilde p} \approx \tilde v .
+\end{equation*}
+The attitude error $\tilde\lambda$ does not appear in this equation, and neither does $\psi_0$ (this will matter in Question 2.8).
+
+\paragraph{Step 2 - Velocity error.}
+Since $v_0 = 0$, the term $-S(\omega) v = -S(\tilde\omega)\,\tilde v$ is again of second order and is dropped.
+The thrust term is linear: $-\tfrac{T}{m}\,e_3 = -\tfrac{g\cdot m}{m}\,e_3 - \tfrac{\tilde T}{m}\,e_3$, and the constant part $-g\, e_3$ cancels the gravity at the equilibrium.
+What remains is the linearization of $g\, R^T(\lambda)\, e_3 = g\,(-\sin\theta,\ \sin\phi\cos\theta,\ \cos\phi\cos\theta)^T$ around $\phi_0 = \theta_0 = 0$.
+Its derivatives at that point are
+\begin{equation*}
+\frac{\partial}{\partial\phi} = g\begin{bmatrix} 0 \\ 1 \\ 0 \end{bmatrix}, \qquad
+\frac{\partial}{\partial\theta} = g\begin{bmatrix} -1 \\ 0 \\ 0 \end{bmatrix}, \qquad
+\frac{\partial}{\partial\psi} = 0 ,
+\end{equation*}
+so $g\, R^T e_3 \approx g\, e_3 + A_{v\lambda}\,\tilde\lambda$ with
+\begin{equation*}
+A_{v\lambda} = \begin{bmatrix} 0 & -g & 0 \\ g & 0 & 0 \\ 0 & 0 & 0 \end{bmatrix}.
+\end{equation*}
+Therefore
+\begin{equation*}
+\dot{\tilde v} = A_{v\lambda}\,\tilde\lambda + b_T\,\tilde T, \qquad b_T = \begin{bmatrix} 0 \\ 0 \\ -1/m \end{bmatrix}.
+\end{equation*}
+Physically, a small roll $\tilde\phi$ tilts the thrust sideways and produces an acceleration $g\tilde\phi$ along $y_B$, a small pitch $\tilde\theta$ produces $-g\tilde\theta$ along $x_B$, and the thrust deviation $\tilde T$ acts on the vertical channel.
+
+\paragraph{Step 3 - Attitude error.}
+We have $\dot{\tilde\lambda} = Q(\lambda)\,\omega = Q(\lambda)\,\tilde\omega$.
+Because $\omega_0 = 0$, the first-order approximation only needs $Q$ at the equilibrium, and $Q(\lambda_0) = I_3$ for $\phi_0 = \theta_0 = 0$.
+Hence $\dot{\tilde\lambda} = \tilde\omega$.
+
+\paragraph{Step 4 - Angular velocity error.}
+The gyroscopic term $S(\omega) J \omega$ is quadratic in $\tilde\omega$ and is dropped, which leaves $\dot{\tilde\omega} = J^{-1}\,\tilde n$.
+
+\paragraph{Result.}
+With $\tilde x = (\tilde p, \tilde v, \tilde\lambda, \tilde\omega)$ and $\tilde u = (\tilde T, \tilde n)$ the linearized system $\dot{\tilde x} = A\tilde x + B\tilde u$ has
+\begin{equation*}
+A = \begin{bmatrix}
+0_3 & I_3 & 0_3 & 0_3 \\
+0_3 & 0_3 & A_{v\lambda} & 0_3 \\
+0_3 & 0_3 & 0_3 & I_3 \\
+0_3 & 0_3 & 0_3 & 0_3
+\end{bmatrix} \in \mathbb{R}^{12\times 12}, \qquad
+B = \begin{bmatrix}
+0_{3\times 1} & 0_3 \\
+b_T & 0_3 \\
+0_{3\times 1} & 0_3 \\
+0_{3\times 1} & J^{-1}
+\end{bmatrix} \in \mathbb{R}^{12\times 4}.
+\end{equation*}
+The matrices $A$ and $B$ are constant and do not depend on $\psi_0$.

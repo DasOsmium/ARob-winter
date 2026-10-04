@@ -1,0 +1,53 @@
+\subsection*{Question 2.9 - Height control schemes}
+
+\paragraph{Step 1 - Plant.}
+With $h = -z$ and $h_0 = -z_0$ the height error is $\tilde h = -\tilde z$.
+At hover $\phi_0 = \theta_0 = 0$, and the vertical channel does not depend on the attitude or on the yaw, so Question 2.7 gives $\tilde Z(s) / T(s) = G_z(s) = -1/(m s^2)$.
+Hence
+\begin{equation*}
+\frac{H(s)}{T(s)} = -G_z(s) = \frac{1}{m\, s^2},
+\end{equation*}
+which is the cascade of $\frac{1}{ms}$ (thrust to vertical velocity $\dot h$) and $\frac{1}{s}$ (velocity to height) in the diagrams.
+Here $T$ stands for the deviation of the thrust from the hover value $m g$, which is assumed to be compensated separately.
+
+\paragraph{Step 2 - Scheme 1 (Fig.~2, inner-outer loop).}
+The outer loop multiplies the height error by $k_p$.
+The inner loop closes the block $\frac{1}{ms}$ with the feedback $k_d$ on the velocity $\dot h$, so
+\begin{equation*}
+\dot H(s) = s H(s) = \frac{1}{m s}\Big(k_p\big(H_{ref}(s) - H(s)\big) - k_d\, \dot H(s)\Big) .
+\end{equation*}
+Solving for the inner loop, $\dot H(s) = \dfrac{k_p\,(H_{ref} - H)}{m s + k_d}$, and closing the outer loop with the integrator $\frac{1}{s}$ gives $m s^2 H + k_d s H + k_p H = k_p H_{ref}$, that is,
+\begin{equation*}
+\frac{H(s)}{H_{ref}(s)} = \frac{k_p}{m\, s^2 + k_d\, s + k_p}.
+\end{equation*}
+
+\paragraph{Step 3 - Scheme 2 (Fig.~3, series PD).}
+Here the controller $k_p + k_d s$ acts on the height error and drives the plant $\frac{1}{m s^2}$.
+The loop transfer function is $L(s) = \frac{k_p + k_d s}{m s^2}$ and the closed loop is
+\begin{equation*}
+\frac{H(s)}{H_{ref}(s)} = \frac{L(s)}{1 + L(s)} = \frac{k_d\, s + k_p}{m\, s^2 + k_d\, s + k_p}.
+\end{equation*}
+
+\paragraph{Step 4 - Comparison.}
+Both closed loops have the same denominator $m s^2 + k_d s + k_p$, so they have the same poles and the same natural frequency and damping,
+\begin{equation*}
+\omega_n = \sqrt{\frac{k_p}{m}}, \qquad \zeta = \frac{k_d}{2\sqrt{m\,k_p}} .
+\end{equation*}
+Both have unit DC gain, so both track a constant height reference with zero steady-state error.
+The difference is the numerator: Scheme 1 has no zeros, while Scheme 2 has an extra zero at $s = -k_p/k_d$.
+In terms of the step response, Scheme 2 equals the response of Scheme 1 plus the response of $\frac{k_d s}{m s^2 + k_d s + k_p}$, which for a step of height $A$ is (underdamped case, with $\sigma = \zeta\omega_n$ and $\omega_d = \omega_n\sqrt{1-\zeta^2}$)
+\begin{equation*}
+\frac{A\, k_d}{m\,\omega_d}\, e^{-\sigma t} \sin(\omega_d t) .
+\end{equation*}
+This extra term is positive at the beginning, so Scheme 2 rises faster and typically has a larger overshoot than Scheme 1 for the same $(k_p, k_d)$, which is the usual effect of a zero in the left half-plane.
+
+There is also a difference in the control effort.
+For a step $H_{ref}(s) = A/s$, Scheme 1 gives the thrust $T = k_p(H_{ref} - H) - k_d \dot H$, and since $H(0) = \dot H(0) = 0$, the initial thrust is the finite value $T(0^+) = k_p A$.
+In Scheme 2 the thrust is $T = (k_p + k_d s)(H_{ref} - H)$, and the term $k_d s\, H_{ref}$ differentiates the step, so the thrust has an impulse of weight $k_d A$ at $t = 0$.
+In practice this derivative kick saturates the motors, and it cannot be produced by the rotors.
+The same factor $k_d s$ also amplifies high-frequency measurement noise on $h$ without bound.
+In Scheme 1 the reference is never differentiated, and the derivative action acts on the velocity signal $\dot h$, which is at the output of the block $\frac{1}{ms}$ and can be measured (for example with the vertical speed sensor) instead of being obtained by differentiating the noisy height.
+
+\paragraph{Advantages and disadvantages.}
+Scheme 1 (inner-outer loop) is smoother, has no zero, no derivative kick, and handles noise better if a velocity measurement is available, at the cost of needing that measurement and a nested loop structure.
+Scheme 2 (series PD) is simpler, with a single compensator, and responds faster, at the cost of a larger overshoot, a derivative kick on step references, and noise amplification when the derivative has to be computed from the measured height.

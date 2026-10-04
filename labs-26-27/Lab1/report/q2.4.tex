@@ -1,0 +1,83 @@
+\subsection*{Question 2.4 - Nonlinear state-space models}
+
+We want the state equations for the two alternative state vectors
+\begin{equation*}
+x = \begin{bmatrix} {}^B p \\ v \\ \lambda \\ \omega \end{bmatrix}, \qquad
+x_1 = \begin{bmatrix} p \\ v \\ \lambda \\ \omega \end{bmatrix}, \qquad
+{}^B p = R^T(\lambda)\, p,
+\end{equation*}
+with the input $u = \begin{bmatrix} T \\ n \end{bmatrix}$ from Question 2.3.
+(The handout writes $\dot p$ in the second position of $x_1$, which has to be a typo, since $\dot p = R v$ is not an independent state. We take $v$ there, so $x_1 \in \mathbb{R}^{12}$.)
+Three blocks are common to both models, so we derive those first and then treat the position block of each model separately.
+
+\paragraph{Step 1 - Translational dynamics.}
+The first equation in (1) is $m\dot v = -m S(\omega) v + f$.
+From Question 2.1 the force in the body frame is the gravity term plus the thrust term,
+\begin{equation*}
+f = m g\, R^T(\lambda)\, e_3 - T e_3, \qquad
+R^T(\lambda) e_3 = \begin{bmatrix} -\sin\theta \\ \sin\phi\cos\theta \\ \cos\phi\cos\theta \end{bmatrix},
+\end{equation*}
+where $R^T(\lambda) e_3$ is simply the third row of $R(\lambda)$ written as a column.
+Dividing by $m$,
+\begin{equation*}
+\dot v = -S(\omega) v + g\, R^T(\lambda)\, e_3 - \frac{T}{m}\, e_3 .
+\end{equation*}
+
+\paragraph{Step 2 - Rotational dynamics and Euler angle kinematics.}
+The second equation in (1), solved for $\dot\omega$ with the torque $n = u_{2:4}$, gives
+\begin{equation*}
+\dot\omega = J^{-1}\big(n - S(\omega) J \omega\big).
+\end{equation*}
+The attitude kinematics are given directly by the handout,
+\begin{equation*}
+\dot\lambda = Q(\lambda)\,\omega, \qquad
+Q(\lambda) = \begin{bmatrix} 1 & \sin\phi\tan\theta & \cos\phi\tan\theta \\ 0 & \cos\phi & -\sin\phi \\ 0 & \frac{\sin\phi}{\cos\theta} & \frac{\cos\phi}{\cos\theta} \end{bmatrix}.
+\end{equation*}
+
+\paragraph{Step 3 - Position block for $x_1$.}
+For the state $x_1$ the position is the inertial position $p$, and its derivative is the linear kinematics from the handout, $\dot p = R(\lambda)\, v$ (the velocity is stored in $\{B\}$, so it has to be rotated to $\{I\}$).
+Together with Steps 1 and 2,
+\begin{equation*}
+\dot x_1 = g_1(x_1, u) =
+\begin{bmatrix}
+R(\lambda)\, v \\[4pt]
+-S(\omega) v + g\, R^T(\lambda)\, e_3 - \dfrac{T}{m}\, e_3 \\[8pt]
+Q(\lambda)\, \omega \\[4pt]
+J^{-1}\big(n - S(\omega) J \omega\big)
+\end{bmatrix}.
+\end{equation*}
+
+\paragraph{Step 4 - Position block for $x$.}
+Now the position is ${}^B p = R^T p$, and both factors depend on time, so the product rule gives
+\begin{equation*}
+{}^B\dot p = \dot R^T p + R^T \dot p .
+\end{equation*}
+We need $\dot R$.
+The angular velocity $\omega$ of the body, written in $\{B\}$, is related to the rotation matrix by $\dot R = R\, S(\omega)$.
+This is where the hint $R(a \times b) = (Ra) \times (Rb)$ is used: it says $R\,S(a)\,b = S(Ra)\,R\,b$ for every $b$, that is, $R\,S(a) = S(Ra)\,R$.
+So $R\,S(\omega)$ is the same as $S(R\omega)\,R$, the familiar inertial-frame form of $\dot R$ with the angular velocity rotated into $\{I\}$, and both forms are consistent.
+
+Using $S(\cdot)^T = -S(\cdot)$ (the second hint),
+\begin{equation*}
+\dot R^T = \big(R\,S(\omega)\big)^T = S(\omega)^T R^T = -S(\omega)\, R^T .
+\end{equation*}
+The second term is easy: $R^T \dot p = R^T R\, v = v$.
+Substituting both,
+\begin{equation*}
+{}^B\dot p = -S(\omega)\, R^T p + v = v - S(\omega)\, {}^B p = v - \omega \times {}^B p .
+\end{equation*}
+So the position derivative in the body frame is the velocity minus a term $\omega \times {}^B p$ due to the frame rotating with the vehicle.
+The block is attitude-independent in the sense that it no longer contains $R(\lambda)$, which is what makes the later linearization simpler.
+
+\paragraph{Step 5 - Final result.}
+Putting the blocks together,
+\begin{equation*}
+\dot x = g(x, u) =
+\begin{bmatrix}
+v - S(\omega)\, {}^B p \\[4pt]
+-S(\omega) v + g\, R^T(\lambda)\, e_3 - \dfrac{T}{m}\, e_3 \\[8pt]
+Q(\lambda)\, \omega \\[4pt]
+J^{-1}\big(n - S(\omega) J \omega\big)
+\end{bmatrix}.
+\end{equation*}
+The two models $g$ and $g_1$ differ only in their first block: $v - S(\omega)\,{}^B p$ for the first and $R(\lambda)\,v$ for the second.
